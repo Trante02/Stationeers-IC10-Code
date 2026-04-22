@@ -1,0 +1,103 @@
+# note to self - write some code
+# d0 and d1 are the screw terminals
+
+# db is the machine the IC is slotted in to
+init:
+alias self db
+alias dLogicMemA d0
+alias dLogicMemB d1
+alias rTargetSubstance r1
+alias rTemp r2
+alias rs0Occupied r3
+alias rs0OccupiedHash r4
+alias rs0Quantity r5
+alias rs1Occupied r6
+alias rs1OccupiedHash r7
+alias rs1Quantity r8
+alias rPressureInput r9
+alias rPressureOutput r10
+alias rPressureOutput2 r11
+alias rCount r17
+
+define 632853248 hFilterSm_N
+define -721824748 hFilterSm_O2
+define 11111 hFilterSm_CO2
+define 11111 hFilterSm_NO
+
+start:
+  s self Mode 0   # Set to Idle mode
+safetycheck:
+  ls rs0Occupied self 0 Occupied
+  ls rs0OccupiedHash self 0 OccupantHash
+  ls rs0Quantity self 0 Quantity
+  ls rs1Occupied self 1 Occupied
+  ls rs1OccupiedHash self 1 OccupantHash
+  ls rs1Quantity self 1 Quantity
+
+# This is a basic if/not if statement. It branches one line ahead if the condition
+# matches, and executes the next line if not.
+  breq rs0Occupied 1 2 # if register and 1 are not equal, jump two lines down.
+    j shutdown # condition is false
+  breq rs1Occupied 1 2 # condition is true
+    j shutdown # etc
+  brgt rs0Quantity 5 2 # This one checks if slot 0's filter has less than 5% left
+    j shutdown 
+  brgt rs1Quantity 5 2
+    j shutdown 
+  breq rs0OccupiedHash rs01ccupiedHash 2 
+    j shutdown # if we have two different filters installed, shutdown.
+  breq rTargetSubstance 9999 2 
+    j shutdown # Error identifying target gas, shutdown.
+
+  # Identify the filters and set the gas type
+  move 9999 rTargetSubstance
+  breq rs0OccupiedHash hFilterSm_N 2 
+    move rTargetSubstance 1
+  breq rs0OccupiedHash hFilterSm_O2 2 
+    move rTargetSubstance 2
+  breq rs0OccupiedHash hFilterSm_CO2 2 
+    move rTargetSubstance 3
+  breq rs0OccupiedHash hFilterSm_NO 2
+    move rTargetSubstance 4
+# This is a bit confusing in practise, because we expect if to come before else.
+# Easy way to deal with this is to use breq and brne to check for some condition,
+# and if it's true, jump else, otherwise, just continue working down the code.
+j flowcheck
+
+flowcheck:
+  l rPressureInput self PressureInput
+  l rPressureInput self PressureOutput
+  l rPressureInput self PressureOutput2
+  brlt rPressureInput 100 2
+    j idle # if input very low, become idle.
+  brgt rPressureOutput 40000 2
+    j idle # if output high, become idle.
+  brgt rPressureOutput2 40000 2
+    j idle # if output high, become idle.
+j operate # if we passed all the flow checks, become operational
+
+main:
+  l rPressureInput self PressureInput
+  # div rTemp rPressureInput 50000 # Calculate as a percentage 
+  # s dLogicMemA Setting rTemp # of max and store in temp
+  add rCount rCount 1 # this is just count ++
+  brgt rCount 25 2 # every x loops, break out and continue
+    j main 
+  move rCount 0 # else, reset count to zero and
+  j safetycheck # then jump to label
+
+operate:
+  s self Mode 1 # Set not idle
+j main
+
+shutdown:
+  s self Mode 0 # Set idle
+  s self On 0 # turn off and wait for engineer to help
+j start 
+
+idle:
+  s self Mode 0 # Set idle
+j start
+
+EoF:
+j start # Loop program, just in case we reach the end.

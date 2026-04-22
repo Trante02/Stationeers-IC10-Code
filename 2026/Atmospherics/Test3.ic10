@@ -1,0 +1,16 @@
+init:
+  alias self db
+  alias dFilterA d0
+  alias dFilterB d1
+  define hFilterSmN 632853248
+  s self Setting 0
+
+start:
+  ls r3 dFilterA 0 OccupantHash
+  ls r4 dFilterB 0 OccupantHash
+
+  breq hFilterSmN r3 2
+    j start
+  s self Setting 1000 # else
+  sleep 1000
+j start

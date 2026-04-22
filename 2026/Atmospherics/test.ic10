@@ -1,0 +1,65 @@
+# note to self - write some code
+# d0 and d1 are the screw terminals
+
+# db is the machine the IC is slotted in to
+init:
+alias self db
+alias dLogicMemA d0
+alias dLogicMemB d1
+alias rPressureInput r1
+alias rPressureInputPct r2
+alias rs0Occupied r3
+alias rs0OccupiedHash r4
+alias rs0Quantity r5
+alias rs1Occupied r6
+alias rs1OccupiedHash r7
+alias rs1Quantity r8
+alias rCount r17
+
+
+start:
+  s self Mode 0   # Set to Idle mode
+safetycheck:
+  ls rs0Occupied self 0 Occupied
+  ls rs0OccupiedHash self 0 OccupantHash
+  ls rs0Quantity self 0 Quantity
+  ls rs1Occupied self 1 Occupied
+  ls rs1OccupiedHash self 1 OccupantHash
+  ls rs1Quantity self 1 Quantity
+
+# This is a basic if/not if statement. It branches one line ahead if the condition
+# matches, and executes the next line if not.
+  breq rs0Occupied 1 2 # if register and 1 are not equal, jump two lines down.
+    j shutdown # condition is false
+  breq rs1Occupied 1 2 # condition is true
+    j shutdown # etc
+  brgt rs0Quantity 5 2 # This one checks if slot 0's filter has less than 5% left
+    j shutdown
+  brgt rs1Quantity 5 2
+    j shutdown
+# This is a bit confusing in practise, because we expect if to come before else.
+# Easy way to deal with this is to use breq and brne to check for some condition,
+# and if it's true, jump else, otherwise, just continue working down the code.
+
+main:
+  s self Mode 1   # Set to Operate mode
+
+loop:
+  l rPressureInput self PressureInput
+  s dLogicMemA Setting rPressureInput
+  div rPressureInputPct rPressureInput 50000
+  s dLogicMemA Setting rPressureInputPct
+  add rCount rCount 1 # this is just count ++
+  brgt rCount 10 2 # every 10 loops, break out and continue
+j loop
+move rCount 0 # first, reset count to zero
+j safetycheck
+
+
+shutdown:
+s self Mode 0 # Set idle
+s self On 0 # turn off and wait for engineer to help
+
+
+EoF:
+j start # Loop program, just in case we reach the end.
