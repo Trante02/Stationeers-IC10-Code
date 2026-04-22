@@ -1,0 +1,127 @@
+j init # run one-time initialisations
+
+start:
+  s self Mode 0   # Set to Idle mode
+  s self Setting 100
+jal main
+
+readslots:
+  s self Setting 21
+  ls rs0Occupied self 0 Occupied
+  ls rs0OccupiedHash self 0 OccupantHash
+  ls rs0Quantity self 0 Quantity
+  ls rs1Occupied self 1 Occupied
+  ls rs1OccupiedHash self 1 OccupantHash
+  ls rs1Quantity self 1 Quantity
+j ra
+
+safetycheck:
+  s self Setting 22
+  brne rs0Occupied 1 shutdown
+  brne rs1Occupied 1 shutdown
+  brlt rs0Quantity 5 shutdown
+  brlt rs1Quantity 5 shutdown
+  brne rs0OccupiedHash rs1OccupiedHash shutdown
+j ra
+
+identifyGasType:
+s self Setting 23
+move rTargetSubstance 100
+brne rs0OccupiedHash hFilterSmN 2
+  move rTargetSubstance 1 # Nitrogen
+brne rs0OccupiedHash hFilterSmO2 2
+  move rTargetSubstance 2 # Oxygen
+brne rs0OccupiedHash hFilterSmCO2 2
+  move rTargetSubstance 3 # Carbon Dioxide
+j ra
+
+flowcheck:
+  s self Setting 24
+  l rPressureInput self PressureInput
+  l rPressureInput self PressureOutput
+  l rPressureInput self PressureOutput2
+  brgt rPressureInput 100 idle # input low, go idle
+  brlt rPressureOutput 40000 idle # output high, idle
+  brlt rPressureOutput2 40000 idle # output high, idle
+j ra # if we passed all checks, continue
+
+operate:
+  s self Setting 25
+  s self Mode 1 # Set not idle
+  move rState 1
+  s dLED Color green
+j ra # return to caller
+
+main:
+  s self Setting 26
+  l rPressureInput self PressureInput
+  # div rTemp rPressureInput 50000 # Calculate as a percentage
+  s dLogicMemA Setting rPressureInput # of max and store in temp
+  add rCount rCount 1 # this is just count ++
+  brgt rCount 5 main # Go back until x loops
+  move rCount 0 # else, reset count to zero and
+  jal readslots
+  jal identifyGasType
+  jal safetycheck
+  jal flowcheck
+  brne rState 1 shutdown
+j main
+
+shutdown:
+  s self Setting 27
+  s self Mode 0 # Set idle
+  move rState 0
+  s dLED Color orange
+  s self On 0 # turn off and wait for engineer to help
+j start
+
+idle:
+  s self Setting 28
+  s self Mode 0 # Set idle
+  move rState 0
+  s dLED Color blue
+j start
+
+EoF:
+j start # Loop program, just in case we reach the end.
+
+init:
+s db Setting 18
+# Pins
+  alias self db
+  alias dLogicMemA d0
+  alias dLED d1
+# Registers
+  alias rCount r0
+  alias rTemp r1
+  alias rState r2
+  alias rTargetSubstance r3
+  alias rs0Occupied r4
+  alias rs0OccupiedHash r5
+  alias rs0Quantity r6
+  alias rs1Occupied r7
+  alias rs1OccupiedHash r8
+  alias rs1Quantity r9
+  alias rPressureInput r10
+  alias rPressureOutput r11
+  alias rPressureOutput2 r12
+  alias rTemperatureInput r13
+  alias rTemperatureOutput r14
+  alias rTemperatureOutput2 r15
+
+# Constants
+  define hFilterSmN 632853248
+  define hFilterSmO2 -721824748
+  define hFilterSmCO2 3
+  define hFilterSmNO 4
+  define blue 0
+  define green 2
+  define orange 3
+  define red 4
+  define yellow 5
+# Initialise Variables
+  move rTargetSubstance 0
+  move rState 0
+  s db Setting 19
+  s dLED Color 6
+j start
