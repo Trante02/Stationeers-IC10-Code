@@ -19,10 +19,10 @@ alias rPressureOutput r10
 alias rPressureOutput2 r11
 alias rCount r17
 
-define 632853248 hFilterSm_N
-define -721824748 hFilterSm_O2
-define 11111 hFilterSm_CO2
-define 11111 hFilterSm_NO
+define hFilterSmN 632853248
+define hFilterSmO2 -721824748
+define hFilterSmCO2 3
+define hFilterSmNO 4
 
 start:
   s self Mode 0   # Set to Idle mode
@@ -50,14 +50,14 @@ safetycheck:
     j shutdown # Error identifying target gas, shutdown.
 
   # Identify the filters and set the gas type
-  move 9999 rTargetSubstance
-  breq rs0OccupiedHash hFilterSm_N 2 
+  move rTargetSubstance 9999
+  breq rs0OccupiedHash hFilterSmN 2 
     move rTargetSubstance 1
-  breq rs0OccupiedHash hFilterSm_O2 2 
+  breq rs0OccupiedHash hFilterSmO2 2 
     move rTargetSubstance 2
-  breq rs0OccupiedHash hFilterSm_CO2 2 
+  breq rs0OccupiedHash hFilterSmCO2 2 
     move rTargetSubstance 3
-  breq rs0OccupiedHash hFilterSm_NO 2
+  breq rs0OccupiedHash hFilterSmNO 2
     move rTargetSubstance 4
 # This is a bit confusing in practise, because we expect if to come before else.
 # Easy way to deal with this is to use breq and brne to check for some condition,
