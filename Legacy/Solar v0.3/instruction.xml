@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132359740601303421</DateTime>
+  <GameVersion>0.2.2396.10846</GameVersion>
+  <Title>Solar v0.3</Title>
+  <Description />
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>init:
+alias Solarpanels d0
+alias SolarSensorHorz d1
+alias SolarSensorVert d2
+alias SolarSensorTest d5
+alias Display1 d3
+alias Display2 d4
+
+alias rVert r1
+alias rHorz r2
+
+s SolarSensorHorz Mode 1
+s SolarSensorTest Mode 2
+s Display1 Color 0
+s Display2 Color 0
+
+loop1:
+l rVert SolarSensorVert SolarAngle
+l rHorz SolarSensorHorz SolarAngle
+mul rVert rVert -0.6667
+add rVert rVert 110
+sub rHorz 270 rHorz
+s Display1 Setting rHorz
+s Display2 Setting rVert
+s Solarpanels Vertical rVert
+s Solarpanels Horizontal rHorz
+sleep 1
+j loop1</Instructions>
+</InstructionData>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132371072239322410</DateTime>
+  <GameVersion>0.2.2433.11082</GameVersion>
+  <Title>Frn_AdvFurnace Controller</Title>
+  <Description />
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>#Advanced Furnace Control Script 0.1
+INIT:
+alias d_afurnace  d0   #Furnace actual
+alias d_maxtemp   d1    #Dial 1
+alias d_maxpress  d2    #Dial 2
+alias d_emervent  d3    #Emergency Vent Lever
+alias d_disp2  d4    #LED Display 2
+alias d_disp3  d5    #LED Display 3
+
+alias r_maxtemp  r1
+alias r_maxpress r2
+alias r_frntemp  r3
+alias r_frnpress r4
+alias r_tmp      r5
+alias r_emervent r11    #Emergency vent
+
+#configure furnace
+s d_afurnace On 1
+s d_afurnace SettingInput 0
+s d_afurnace SettingOutput 0
+
+#configure LED Displays
+s d_disp2 Color 3
+s d_disp3 Color 0
+s d_disp2 Setting 99999
+s d_disp3 Setting 99999
+
+START:
+l r_emervent d_emervent Setting #load lever pos
+breqz r_emervent 2 #branch 2 if a=0
+j EMERGVENT        #goto emergency vent
+l r_frnpress d_afurnace Pressure
+l r_frntemp d_afurnace Temperature
+s d_disp2 Setting r_frnpress
+s d_disp3 Setting r_frntemp
+
+CHECKPRESS:
+l r_maxpress d_maxpress Setting
+mul r_maxpress r_maxpress 100
+brgt r_frnpress r_maxpress 3   # br if overpressure
+s d_afurnace SettingOutput 0   # not at max pressure
+j CHECKTEMP  # move on
+s d_afurnace SettingOutput 50 # at maximum pressure
+j START      # go back and check again
+
+CHECKTEMP:
+l r_maxtemp d_maxtemp Setting
+mul r_maxtemp r_maxtemp 100
+brgt r_frntemp r_maxtemp 4   # br if overtemp
+s d_afurnace SettingInput 25 # not at max temp
+s d_afurnace Activate 1
+s d_afurnace Activate 0
+s d_afurnace SettingInput 0  # close charge valve again
+s d_afurnace Open 0
+j START
+
+EMERGVENT:
+s d_afurnace On 1
+s d_afurnace SettingInput 0
+s d_afurnace SettingOutput 100
+sleep 1
+l r_emervent d_emervent Setting #load the lever pos
+breqz r_emervent 2 #branch 2 if a=0
+j EMERGVENT
+j START
+
+EOF:</Instructions>
+</InstructionData>

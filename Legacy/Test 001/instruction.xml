@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>134198262468396091</DateTime>
+  <GameVersion>0.2.6228.27061</GameVersion>
+  <Title>Test 001</Title>
+  <Description>Test 001​</Description>
+  <Author>AJ</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions />
+</InstructionData>

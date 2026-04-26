@@ -65,6 +65,7 @@ main:
   jal safetycheck
   jal flowcheck
   brne rState 1 shutdown
+  jal operate
 j main
 
 shutdown:

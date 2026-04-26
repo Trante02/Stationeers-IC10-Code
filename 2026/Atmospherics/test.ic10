@@ -1,0 +1,12 @@
+alias self db
+alias dLogicMemA d0
+alias dLEDDisplay d1
+alias rState r2
+alias rCount r0
+
+main:
+s dLEDDisplay Setting rCount
+add rCount rCount 1 # this is just count ++
+blt rCount 100 main # Go back until x loops
+move rCount 0 # else, reset count to zero and
+j main

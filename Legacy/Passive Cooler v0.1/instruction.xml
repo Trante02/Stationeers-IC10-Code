@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132384045199945989</DateTime>
+  <GameVersion>0.2.2445.11152</GameVersion>
+  <Title>Passive Cooler v0.1</Title>
+  <Description />
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions># Title
+alias dTank d0
+alias dPAStorage d1
+alias dPACoolLoop d2
+alias dVPLoopInput d3
+alias dVPLoopOutput d4
+alias dDS d5
+
+RESET:
+s dVPLoopInput On 0 #Stop both pumps
+s dVPLoopOutput On 0 #Stop both pumps
+
+CHECKDS:
+l r1 dDS Activate
+bne r1 r2 DECIDE # status has changed
+j CHECKDS # else return
+
+DECIDE:
+beq r1 1 DAYTIME
+beq r1 0 NIGHTTIME
+j RESET # error handling
+
+DAYTIME:
+move r2 r1
+l r3 dPAStorage Pressure # read loop pressure
+bgt r3 15000 RESET # stop if overpressure
+s dVPLoopOutput On 1 # start pump
+j CHECKDS
+
+NIGHTTIME:
+move r2 r1
+l r4 dPACoolLoop Pressure # read loop pressure
+bgt r4 15000 RESET # stop if overpressure
+s dVPLoopInput On 1 # start pump
+j CHECKDS
+
+EOF:</Instructions>
+</InstructionData>

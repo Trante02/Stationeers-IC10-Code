@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>134216606041005468</DateTime>
+  <GameVersion>0.2.6228.27061</GameVersion>
+  <Title>Generator Automation v001</Title>
+  <Description>Generator Automation and Power levels monitor. Reads all batteries on network and shows charge levels on LED Displays. Also turns solid fuel generator on and off as needed. ​</Description>
+  <Author>AJ</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>j init # run one-time initialisations
+
+main:
+lb rChargeTotal StationBattHash Charge Sum
+div rChargeRatio rChargeTotal rSystemMaxCharge
+s self Setting rChargeRatio
+s dConsole1 Setting rChargeRatio
+s dConsole2 Setting rChargeTotal
+bgtal rChargeTotal rUpThreshold DisableGenerator
+bltal rChargeTotal rLrThreshold EnableGenerator
+j main
+
+EnableGenerator:
+s dGenerator On 1
+j ra
+DisableGenerator:
+s dGenerator On 0
+j ra
+
+EoF:
+j main # Loop program, just in case
+
+init:
+# Pins
+alias self db
+alias dConsole1 d2
+alias dConsole2 d3
+alias dGenerator d1
+# Registers
+alias rCount r0
+alias rLrThreshold r1
+alias rUpThreshold r2
+alias rBattCount r3
+alias rChargeTotal r4
+alias rBattMaxCharge r5
+alias rSystemMaxCharge r6
+alias rChargeRatio r7
+# Constants
+define StationBattHash -400115994
+# Initialise Variables
+
+# Do some cold-boot logic
+lb rBattCount StationBattHash Power Sum
+lb rSystemMaxCharge StationBattHash Maximum Sum
+div rBattMaxCharge rSystemMaxCharge rBattCount
+mul rLrThreshold rSystemMaxCharge 0.2
+mul rUpThreshold rSystemMaxCharge 0.8
+s dConsole1 Mode 1
+s dConsole2 Mode 2
+j main</Instructions>
+</InstructionData>

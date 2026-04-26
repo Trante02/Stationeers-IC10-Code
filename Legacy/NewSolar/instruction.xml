@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132377161256505240</DateTime>
+  <GameVersion>0.2.2445.11152</GameVersion>
+  <Title>NewSolar</Title>
+  <Description>New solar script from Creative mode.​</Description>
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>INIT:
+alias dDSHorz d0
+alias dDSVert d1
+alias dLMHorz d2
+alias dLMVert d3
+alias dDisp1 d4
+alias dDisp2 d5
+
+alias rVert r1
+alias rHorz r2
+
+s dDSHorz Mode 1
+s dDSVert Mode 2
+
+LOOP1:
+l rVert dDSVert SolarAngle
+l rHorz dDSHorz SolarAngle
+sub rVert 75 rVert  # r? = a - b
+div rVert rVert 1.5 # r? = a / b
+#max rVert rVert 0
+sub rHorz 270 rHorz
+trunc rHorz rHorz
+trunc rVert rVert
+s dLMHorz Setting rHorz
+s dLMVert Setting rVert
+s dDisp1 Setting rHorz
+s dDisp2 Setting rVert
+yield
+j LOOP1</Instructions>
+</InstructionData>

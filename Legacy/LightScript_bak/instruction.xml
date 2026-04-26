@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132366110164104622</DateTime>
+  <GameVersion>0.2.2425.11009</GameVersion>
+  <Title>LightScript_bak</Title>
+  <Description />
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>Init:
+alias Lights d0
+alias Beacon d1
+alias Aircon d2
+alias Red d3
+alias Green d4
+alias Sensor d5
+
+alias Alpres r1
+
+Loop1:
+l Alpres Sensor Pressure
+
+
+s d0 Setting 1
+sleep 1
+s d0 Setting 0
+sleep 1
+
+brgt Alpres 35 5 #jump and set green if over 35
+s Green On 0
+s Red On 1
+j Loop1
+
+s Green On 1
+s Red On 0
+j Loop1</Instructions>
+</InstructionData>
