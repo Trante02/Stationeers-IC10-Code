@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132384073428333713</DateTime>
+  <GameVersion>0.2.2445.11152</GameVersion>
+  <Title>Passive Cooler v1.0</Title>
+  <Description>​</Description>
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions># Title
+alias dTank d0
+alias dPAStorage d1
+alias dPACoolLoop d2
+alias dVPLoopInput d3
+alias dVPLoopOutput d4
+alias dDS d5
+
+INIT:
+l r2 dDS Activate
+s db Setting 0
+RESET:
+s dVPLoopInput On 0 #Stop both pumps
+s dVPLoopOutput On 0 #Stop both pumps
+CHECKDS:
+l r1 dDS Activate
+bne r1 r2 RUNPROCESS #Branch if change occurs
+l r3 dPAStorage Pressure
+l r4 dPACoolLoop Pressure
+brlt r3 5000 2 #skip one line if a&lt;b
+  s dVPLoopOutput On 0 #stop pump if overpressure
+brlt r4 5000 2 #skip one line a&lt;b
+  s dVPLoopInput On 0 #stop pump if overpressure
+brgt r3 100 2 #skip next line if a&gt;b
+  s dVPLoopInput On 0
+brgt r4 100 2 #skip next line if a&gt;b
+  s dVPLoopOutput On 0
+j CHECKDS #return
+
+RUNPROCESS:
+s db Setting r1
+move r2 r1 #Update "previous" state
+brne r1 1 2 #skip next line if not daytime
+  s dVPLoopOutput On 1 # daytime
+brne r1 0 2 #skip next line if not nighttime
+  s dVPLoopInput On 1 # nighttime
+j CHECKDS
+
+ERROR:
+s db Setting 999
+
+EOF:</Instructions>
+</InstructionData>

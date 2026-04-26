@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132377319746368682</DateTime>
+  <GameVersion>0.2.2445.11152</GameVersion>
+  <Title>Ice Melting Furnace</Title>
+  <Description />
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>Init:
+alias Furnace d0
+#alias Input d1
+#alias COPump d2
+#alias COSwitch d3
+
+alias Temp r1
+alias Psi r2
+alias Load r3
+
+Loop1:
+l Psi Furnace Pressure
+l Temp Furnace Temperature
+ls Load Furnace 0 Quantity
+bgt Load 0 CHECKPRES
+j Loop1
+
+CHECKPRES:
+blt Psi 10000 CHECKTEMP #check furnace pressure
+j Loop1
+
+CHECKTEMP:
+blt Temp 500 SENDACT #check furnace temperature
+j Loop1
+
+SENDACT:
+s Furnace Activate 1
+yield
+s Furnace Activate 0
+j Loop1
+Mel</Instructions>
+</InstructionData>

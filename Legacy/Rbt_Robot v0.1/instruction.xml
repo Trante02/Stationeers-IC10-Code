@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132372053107538736</DateTime>
+  <GameVersion>0.2.2433.11082</GameVersion>
+  <Title>Rbt_Robot v0.1</Title>
+  <Description>Mining Robot Control Script​</Description>
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>#Robot Control Script 0.1 by Trante
+INIT:
+alias d_robot db
+alias r_battcharge r1
+alias r_posx r2
+alias r_varx r3 #variance
+alias r_posz r4
+alias r_varz r5 #variance
+
+#s d_robot Mode RobotMode.None
+
+define c_HomeX 57
+define c_HomeY 0
+define c_HomeZ 41
+define c_WorkX 50
+define c_WorkY 0
+define c_WorkZ 60
+
+START:
+ls r_battcharge d_robot 0 ChargeRatio
+blt r_battcharge 0.70 RETURNBASE #skip next line
+
+MOVETOWORK:
+s d_robot TargetX c_WorkX
+s d_robot TargetY c_WorkY
+s d_robot TargetZ c_WorkZ
+s d_robot Mode RobotMode.MoveToTarget
+CHECKCOORDS:
+l r_posx d_robot PositionX
+l r_posz d_robot PositionZ
+sub r_varx c_WorkX - r_posx
+sub r_varz c_WorkZ - r_posz
+abs r_varx r_varx
+abs r_varz r_varz
+bgt r_varx 2 CHECKCOORDS #if variance &gt; 2 jump
+bgt r_varz 2 CHECKCOORDS #if variance &gt; 2 jump
+j SHUTDOWN #for testing
+
+#break out of loop if arrived
+#otherwise loop
+
+j START
+
+RETURNBASE:
+s d_robot TargetX c_HomeX
+s d_robot TargetY c_HomeY
+s d_robot TargetZ c_HomeZ
+s d_robot Mode RobotMode.MoveToTarget
+sleep 3
+SHUTDOWN:
+s d_robot Mode RobotMode.Follow
+#s d_robot On 0
+EOF:</Instructions>
+</InstructionData>

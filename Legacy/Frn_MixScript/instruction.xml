@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstructionData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>132366110512254377</DateTime>
+  <GameVersion>0.2.2425.11009</GameVersion>
+  <Title>Frn_MixScript</Title>
+  <Description />
+  <Author>LowrentTrent</Author>
+  <WorkshopFileHandle>0</WorkshopFileHandle>
+  <Instructions>INIT:
+alias d_halt    d0  #Emergency Stop
+alias d_furnace d1
+alias d_gasmix  d2  #Gas mixer
+alias d_gasa    d3   #Gas Analyser
+alias d_disp1   d5  #LED Display 1
+
+alias r_0   r0       #not used
+alias r_chgprs r1    #Charge line pressure
+alias r_chgprsp r2   #Charge line percent
+alias r_halt r10      #Emergency Stop
+
+define maxpress 5000 #Maximum pressure
+s d_gasa On 1 #Danger - must be turned on
+move r_chgprs 99999 #init
+s d_disp1 Mode 0
+s d_disp1 Color 7
+s d_disp1 Setting r_chgprs #debug display
+sleep 1
+s d_disp1 Color 4
+s d_disp1 Setting maxpress #show maxpress on boot
+sleep 1
+s d_disp1 Color 1
+
+START:
+l r_halt d_halt Setting
+breqz r_halt 2  # If halt == 0 skip next
+j SHUTDOWN      # jump to shutdown
+l r_chgprs d_gasa Pressure #load from device
+div r_chgprsp r_chgprs maxpress #convert percent
+s d_disp1 Mode 1 #set percent mode
+s d_disp1 Setting r_chgprsp #update display %
+#s d_disp1 Setting r_chgprs #update display raw
+
+brgt r_chgprs maxpress 3  #if over, jump 3
+s d_gasmix On 1
+j START
+s d_gasmix On 0
+j START
+#sleep 10
+
+SHUTDOWN:
+s d_disp1 Mode 0
+s d_disp1 Setting 998
+s d_gasmix On 0
+s d_gasa On 1
+l r_halt d_halt Setting
+breqz r_halt 2 #if halt == 0 skip next
+j START
+j SHUTDOWN
+EOF:</Instructions>
+</InstructionData>

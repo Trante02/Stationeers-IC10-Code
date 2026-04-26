@@ -1,0 +1,35 @@
+j init # run one-time initialisations
+
+main:
+lb rChargeTotal StationBatteryHash Charge Sum
+div rChargeRatio rChargeTotal rSystemMaxCharge
+s self Setting rChargeRatio
+s dLEDDisplay1 Setting rChargeRatio
+j main
+
+EoF:
+j start # Loop program, just in case we reach the end.
+
+init:
+# Pins
+alias self db
+alias dLEDDisplay1 d0
+# Registers
+alias rCount r0
+alias rTemp r1
+alias rBatteryCount r2
+alias rChargeTotal r3
+alias rBatteryMaxCharge r4
+alias rSystemMaxCharge r5
+alias rChargeRatio r6
+# Constants
+define StationBatteryHash -400115994
+# Initialise Variables
+
+# Do some cold-boot logic
+lb rBatteryCount StationBatteryHash Power Sum
+lb rSystemMaxCharge StationBatteryHash Maximum Sum
+div rBatteryMaxCharge rBatteryMaxCharge rBatteryCount
+
+
+j main
